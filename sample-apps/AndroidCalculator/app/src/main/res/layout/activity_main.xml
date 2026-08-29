@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/numberField"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Calculator App."
+        android:contentDescription="math machine"
+        android:hint="mathematics machine"
+        />
+
+    <EditText
+        android:id="@+id/resultText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:gravity="bottom"
+        android:hint="@string/app_name"
+        android:lines="2"
+        android:maxLines="2"
+        android:textSize="20sp" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/val1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="one"
+                android:hint="one"
+                android:onClick="setValue"
+                android:tag="1"
+                android:text="1" />
+
+            <Button
+                android:id="@+id/val2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="two"
+                android:hint="two"
+                android:onClick="setValue"
+                android:tag="2"
+                android:text="2" />
+
+            <Button
+                android:id="@+id/val3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="three"
+                android:hint="three"
+                android:onClick="setValue"
+                android:tag="3"
+                android:text="3" />
+
+            <Button
+                android:id="@+id/plus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="add"
+                android:hint="plus"
+                android:onClick="setValue"
+                android:tag="+"
+                android:text="+" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/val4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="four"
+                android:hint="four"
+                android:onClick="setValue"
+                android:tag="4"
+                android:text="4" />
+
+            <Button
+                android:id="@+id/val5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="five"
+                android:hint="five"
+                android:onClick="setValue"
+                android:tag="5"
+                android:text="5" />
+
+            <Button
+                android:id="@+id/val6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="six"
+                android:hint="six"
+                android:onClick="setValue"
+                android:tag="6"
+                android:text="6" />
+
+            <Button
+                android:id="@+id/minus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="substract"
+                android:hint="substract"
+                android:onClick="setValue"
+                android:tag="-"
+                android:text="-" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/val7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="seven"
+                android:hint="seven"
+                android:onClick="setValue"
+                android:tag="7"
+                android:text="7" />
+
+            <Button
+                android:id="@+id/val8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="eight"
+                android:hint="eight"
+                android:onClick="setValue"
+                android:tag="8"
+                android:text="8" />
+
+            <Button
+                android:id="@+id/val9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="nine"
+                android:hint="nine"
+                android:onClick="setValue"
+                android:tag="9"
+                android:text="9" />
+
+            <Button
+                android:id="@+id/divide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="divide"
+                android:hint="divide"
+                android:onClick="setValue"
+                android:tag="/"
+                android:text="/" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/clear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="clear"
+                android:text="c" />
+
+            <Button
+                android:id="@+id/val0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="zero"
+                android:hint="zero"
+                android:onClick="setValue"
+                android:tag="0"
+                android:text="0" />
+
+            <Button
+                android:id="@+id/decimal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="setValue"
+                android:tag="."
+                android:text="." />
+
+            <Button
+                android:id="@+id/multiply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="multiply"
+                android:hint="mmultiply"
+                android:onClick="setValue"
+                android:tag="*"
+                android:text="*" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/equals"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:contentDescription="equals"
+                android:hint="equals"
+                android:onClick="compute"
+                android:tag="="
+                android:text="=" />
+        </TableRow>
+
+    </TableLayout>
+
+</LinearLayout>

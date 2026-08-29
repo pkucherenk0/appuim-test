@@ -1,0 +1,171 @@
+name: Appium tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Appium + UiAutomator2 driver
+        run: |
+          npm install -g appium@3.7.0
+          appium driver install uiautomator2
+
+      - name: Install Python deps
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('sample-apps/AndroidCalculator/**/*.gradle*') }}
+
+      - name: Build AndroidCalculator APK
+        working-directory: sample-apps/AndroidCalculator
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          chmod +x gradlew
+          ./gradlew assembleDebug --console=plain
+
+      - name: Boot emulator, install app, run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          disable-animations: true
+          script: |
+            adb devices
+            adb install -r sample-apps/AndroidCalculator/app/build/outputs/apk/debug/app-debug.apk
+            adb shell svc bluetooth disable
+
+            appium --log appium.log &
+            for i in $(seq 1 30); do
+              curl -s http://127.0.0.1:4723/status && break
+              sleep 2
+            done
+
+            source .venv/bin/activate
+            ANDROID_DEVICE_NAME=emulator-5554 pytest test_calculator.py -k android -v
+
+      - name: Upload Appium server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: appium-android-log
+          path: appium.log
+          if-no-files-found: ignore
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Appium + XCUITest driver
+        run: |
+          npm install -g appium@3.7.0
+          appium driver install xcuitest
+
+      - name: Install Python deps
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Pick an available iPhone simulator
+        id: sim
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json, subprocess
+
+          data = json.loads(subprocess.check_output(
+              ["xcrun", "simctl", "list", "devices", "available", "-j"]
+          ))
+          for runtime, devices in data["devices"].items():
+              if "iOS" not in runtime:
+                  continue
+              for d in devices:
+                  if d["name"].startswith("iPhone"):
+                      version = runtime.split(".iOS-")[-1].replace("-", ".")
+                      print(f"udid={d['udid']}")
+                      print(f"name={d['name']}")
+                      print(f"version={version}")
+                      raise SystemExit
+          raise SystemExit("no available iPhone simulator found")
+          EOF
+
+      - name: Boot simulator
+        run: |
+          xcrun simctl boot "${{ steps.sim.outputs.udid }}"
+          xcrun simctl bootstatus "${{ steps.sim.outputs.udid }}" -b
+
+      - name: Build SwiftCalc
+        working-directory: sample-apps/SwiftCalc
+        run: |
+          xcodebuild -project FouthApp.xcodeproj -scheme FouthApp -sdk iphonesimulator \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+
+      - name: Cache WebDriverAgent build
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData/WebDriverAgent-*
+          key: wda-${{ runner.os }}-${{ steps.sim.outputs.version }}
+
+      - name: Install app and run tests
+        run: |
+          xcrun simctl install "${{ steps.sim.outputs.udid }}" \
+            sample-apps/SwiftCalc/build/Build/Products/Debug-iphonesimulator/FouthApp.app
+
+          appium --log appium.log &
+          for i in $(seq 1 30); do
+            curl -s http://127.0.0.1:4723/status && break
+            sleep 2
+          done
+
+          source .venv/bin/activate
+          IOS_DEVICE_NAME="${{ steps.sim.outputs.name }}" \
+          IOS_PLATFORM_VERSION="${{ steps.sim.outputs.version }}" \
+          pytest test_calculator.py -k ios -v
+
+      - name: Upload Appium server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: appium-ios-log
+          path: appium.log
+          if-no-files-found: ignore

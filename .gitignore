@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# macOS
+.DS_Store
+
+# Android build outputs / local machine config
+sample-apps/AndroidCalculator/local.properties
+sample-apps/AndroidCalculator/.gradle/
+sample-apps/AndroidCalculator/build/
+sample-apps/AndroidCalculator/app/build/
+sample-apps/AndroidCalculator/.idea/
+sample-apps/AndroidCalculator/*.iml
+
+# iOS build outputs
+sample-apps/SwiftCalc/build/
+sample-apps/SwiftCalc/.build/
+sample-apps/SwiftCalc/*.xcodeproj/xcuserdata/
+sample-apps/SwiftCalc/*.xcodeproj/project.xcworkspace/xcuserdata/
