@@ -50,7 +50,10 @@ jobs:
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           chmod +x gradlew
-          ./gradlew assembleDebug --console=plain
+          # --no-daemon: a lingering Gradle daemon plus the emulator plus
+          # Appium/Node together were enough to OOM-kill the runner
+          # (confirmed via orphaned java processes in a prior CI run's logs).
+          ./gradlew assembleDebug --no-daemon --console=plain
 
       # GitHub-hosted Ubuntu runners have a /dev/kvm device node but don't
       # grant the runner user access to it by default, so the emulator
