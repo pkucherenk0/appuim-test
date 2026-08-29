@@ -78,7 +78,13 @@ jobs:
           script: |
             adb devices
             adb install -r sample-apps/AndroidCalculator/app/build/outputs/apk/debug/app-debug.apk
-            adb shell svc bluetooth disable
+
+            # NOTE: `adb shell svc bluetooth disable` was tried here (it's
+            # the fix for a local Bluetooth-crash-loop dialog, see README
+            # §9) but reproducibly SIGKILLed the whole runner right after
+            # this exact command in two separate CI runs — dropped until
+            # investigated further. No evidence yet that CI hits the same
+            # local dialog issue.
 
             appium --log appium.log &
             for i in $(seq 1 30); do
