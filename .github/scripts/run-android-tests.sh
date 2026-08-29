@@ -11,7 +11,14 @@ set -euo pipefail
 adb devices
 adb install -r sample-apps/AndroidCalculator/app/build/outputs/apk/debug/app-debug.apk
 
-appium --log appium.log &
+# Redirect Appium's own stdout/stderr to a file instead of leaving them
+# inherited from this script: tests confirmed PASSING, then the whole step
+# hung for the rest of the job's timeout anyway — the CI runner's log
+# streaming waits for EOF on the step's output pipe, which only happens
+# once every process holding it (including a still-running backgrounded
+# Appium server) closes it.
+appium --log appium.log > appium_stdout.log 2>&1 &
+appium_pid=$!
 for i in $(seq 1 30); do
   if curl -s http://127.0.0.1:4723/status; then
     break
@@ -21,3 +28,4 @@ done
 
 source .venv/bin/activate
 ANDROID_DEVICE_NAME=emulator-5554 pytest test_calculator.py -k android -v
+kill "$appium_pid" 2>/dev/null || true
