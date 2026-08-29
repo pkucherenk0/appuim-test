@@ -52,6 +52,18 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --console=plain
 
+      # GitHub-hosted Ubuntu runners have a /dev/kvm device node but don't
+      # grant the runner user access to it by default, so the emulator
+      # silently falls back to unaccelerated software x86_64 emulation —
+      # too slow to boot within any reasonable timeout. This is the
+      # standard workaround (documented by reactivecircus/android-emulator-runner).
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -la /dev/kvm
+
       - name: Boot emulator, install app, run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
